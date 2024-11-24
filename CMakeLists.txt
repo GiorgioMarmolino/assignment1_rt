@@ -137,7 +137,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/assignment1_rt_node.cpp)
 
 add_executable(UI_node_1_CN src/UI_node1_control_node.cpp)
-#add_executable(CK_node_2_RDC src/CK_node2_rel_distance_check.cpp)
+add_executable(CK_node_2_RDC src/CK_node2_rel_distance_check.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,7 +150,7 @@ add_executable(UI_node_1_CN src/UI_node1_control_node.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_dependencies(UI_node_1_CN ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#add_dependencies(CK_node_2_RDC ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(CK_node_2_RDC ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -158,7 +158,7 @@ add_dependencies(UI_node_1_CN ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPOR
 # )
 
 target_link_libraries(UI_node_1_CN ${catkin_LIBRARIES})
-#target_link_libraries(CK_node_2_RDC ${catkin_LIBRARIES})
+target_link_libraries(CK_node_2_RDC ${catkin_LIBRARIES})
 
 #############
 ## Install ##
