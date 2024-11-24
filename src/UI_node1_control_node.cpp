@@ -97,6 +97,6 @@ int main(int argc, char **argv){
 std::array<int, 3> generateRandomNumbers() {
     
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
-    std::array<int, 3> randomNumbers = {std::rand() % 5 + 1, std::rand() % 5 + 1, std::rand()%360};
+    std::array<int, 3> randomNumbers = {std::rand() % 7 + 2, std::rand() % 7 + 2, std::rand()%360};
     return randomNumbers;
 }

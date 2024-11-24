@@ -20,7 +20,7 @@ A node that checks the relative distance between turtle1 and turtle2 and:
 
     - publish on a topic the distance (you can use a std_msgs/Float32 for that)
 
-    - stops the moving turtle if the two turtles are “too close” (you may set a threshold to monitor that)
+    - stops the moving turtle if the two turtles are too close (you may set a threshold to monitor that)
 
     - stops the moving turtle if the position is too close to the boundaries (.e.g, x or y > 10.0, x or y < 1.0
 
@@ -76,7 +76,14 @@ int moving_turtle(){ int moving_turtle_id = t1_moving ? 1 : 2; return moving_tur
 
 
 int main(int argc, char **argv){
-
+	
+	pos_t1.x = 5.0;
+	pos_t1.y = 5.0;
+	pos_t2.x = 5.0;
+	pos_t2.y = 5.0;
+	
+	
+	
     ros::init(argc,argv,"CK_node2_rel_distance_check");
 	ros::NodeHandle n;
     ros::Publisher dist_pbl = n.advertise<std_msgs::Float32>("turtles_distance", 100);
@@ -91,16 +98,19 @@ int main(int argc, char **argv){
 
 	std_msgs::Float32 dist;
 	ros::Rate loop_rate(1);
+	
 	while(ros::ok()){
-
+		
 		//compute distance and publish on topic
 		dist.data = compute_distance(pos_t1, pos_t2);
 		dist_pbl.publish(dist);
 
 		if(turtles_too_close(dist.data))
+			
 			switch(moving_turtle())
 			{
 			case 1:
+				ROS_WARN("Stop turtle1[%f %f]: too close to turtle2 [%f %f] ", pos_t1.x, pos_t1.y, pos_t2.x, pos_t2.y);
 				stop(turtle_pbl1);
 				ros::spinOnce();
             	ros::Duration(0.1).sleep();
@@ -108,36 +118,32 @@ int main(int argc, char **argv){
 			case 2:
 				stop(turtle_pbl2);
 				ros::spinOnce();
-        	    ros::Duration(0.1).sleep();
+        	    		ros::Duration(0.1).sleep();
 				break;
 			}
 			
 		if(world_limit(pos_t1)){
+			ROS_WARN("Stop turtle1: too close to world boundaries [position: %f %f]", pos_t1.x, pos_t1.y);
 			stop(turtle_pbl1);
 			ros::spinOnce();
-            ros::Duration(0.1).sleep();
-			break;
+            		ros::Duration(0.1).sleep();
+		
 		}
 		if(world_limit(pos_t2)){
+			ROS_WARN("Stop turtle2: too close to world boundaries [position: %f %f]", pos_t2.x, pos_t2.y);
 			stop(turtle_pbl2);
 			ros::spinOnce();
-        	ros::Duration(0.1).sleep();
+        		ros::Duration(0.1).sleep();
 		}
-
-
-
-
-
 
 		ros::spinOnce();
 		loop_rate.sleep();
-	}
 	
-	
+}
 	
 	
 	return 0;
 }
 
-//ROS_INFO, ROS_ERROR, ROS_WARNING
+
 
