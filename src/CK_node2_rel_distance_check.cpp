@@ -7,7 +7,7 @@
 
 #define min_lim 1.0 //minimal value in space
 #define max_lim 10.0 //max value in space
-#define min_distance 2.0 //minimal distance between turtles
+#define min_distance 1.0 //minimal distance between turtles
 
 turtlesim::Pose pos_t1;
 geometry_msgs::Twist vel_t1;
@@ -20,7 +20,7 @@ A node that checks the relative distance between turtle1 and turtle2 and:
 
     - publish on a topic the distance (you can use a std_msgs/Float32 for that)
 
-    - stops the moving turtle if the two turtles are too close (you may set a threshold to monitor that)
+    - stops the moving turtle if the two turtles are ?too close? (you may set a threshold to monitor that)
 
     - stops the moving turtle if the position is too close to the boundaries (.e.g, x or y > 10.0, x or y < 1.0
 
@@ -70,7 +70,13 @@ void trt2_vel(const geometry_msgs::Twist::ConstPtr& msg) {
 
 int moving_turtle(){ int moving_turtle_id = t1_moving ? 1 : 2; return moving_turtle_id;}
 
-
+void reverse_moving(ros::Publisher& trt_pbl, geometry_msgs::Twist old_vel) {
+	geometry_msgs::Twist vel;
+    vel.linear.x = -old_vel.linear.x;
+    vel.linear.y = -old_vel.linear.y;
+    vel.angular.z = -old_vel.linear.z;
+    trt_pbl.publish(vel);
+}
 
 
 
@@ -97,7 +103,7 @@ int main(int argc, char **argv){
     ros::Publisher turtle_pbl2 = n.advertise<geometry_msgs::Twist>("turtle2/cmd_vel", 10);
 
 	std_msgs::Float32 dist;
-	ros::Rate loop_rate(1);
+	ros::Rate loop_rate(1000);
 	
 	while(ros::ok()){
 		
@@ -112,28 +118,36 @@ int main(int argc, char **argv){
 			case 1:
 				ROS_WARN("Stop turtle1[%f %f]: too close to turtle2 [%f %f] ", pos_t1.x, pos_t1.y, pos_t2.x, pos_t2.y);
 				stop(turtle_pbl1);
+				
+				reverse_moving(turtle_pbl1, vel_t1);
 				ros::spinOnce();
             	ros::Duration(0.1).sleep();
 				break;
 			case 2:
+				ROS_WARN("Stop turtle2[%f %f]: too close to turtle2 [%f %f] ", pos_t2.x, pos_t2.y, pos_t1.x, pos_t1.y);
 				stop(turtle_pbl2);
+				
+				reverse_moving(turtle_pbl2, vel_t2);
 				ros::spinOnce();
-        	    		ros::Duration(0.1).sleep();
+            	ros::Duration(0.1).sleep();
 				break;
 			}
 			
 		if(world_limit(pos_t1)){
 			ROS_WARN("Stop turtle1: too close to world boundaries [position: %f %f]", pos_t1.x, pos_t1.y);
 			stop(turtle_pbl1);
+			
+			reverse_moving(turtle_pbl1, vel_t1);
 			ros::spinOnce();
-            		ros::Duration(0.1).sleep();
+            ros::Duration(0.1).sleep();
 		
 		}
 		if(world_limit(pos_t2)){
 			ROS_WARN("Stop turtle2: too close to world boundaries [position: %f %f]", pos_t2.x, pos_t2.y);
 			stop(turtle_pbl2);
+			reverse_moving(turtle_pbl2, vel_t2);
 			ros::spinOnce();
-        		ros::Duration(0.1).sleep();
+        	ros::Duration(0.1).sleep();
 		}
 
 		ros::spinOnce();
@@ -144,6 +158,7 @@ int main(int argc, char **argv){
 	
 	return 0;
 }
+
 
 
 
