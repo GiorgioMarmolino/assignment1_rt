@@ -121,15 +121,15 @@ int main(int argc, char **argv){
 				
 				reverse_moving(turtle_pbl1, vel_t1);
 				ros::spinOnce();
-            	ros::Duration(0.1).sleep();
+            			ros::Duration(0.1).sleep();
 				break;
 			case 2:
-				ROS_WARN("Stop turtle2[%f %f]: too close to turtle2 [%f %f] ", pos_t2.x, pos_t2.y, pos_t1.x, pos_t1.y);
+				ROS_WARN("Stop turtle2[%f %f]: too close to turtle1 [%f %f] ", pos_t2.x, pos_t2.y, pos_t1.x, pos_t1.y);
 				stop(turtle_pbl2);
 				
 				reverse_moving(turtle_pbl2, vel_t2);
 				ros::spinOnce();
-            	ros::Duration(0.1).sleep();
+            			ros::Duration(0.1).sleep();
 				break;
 			}
 			
