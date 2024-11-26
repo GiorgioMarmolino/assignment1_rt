@@ -9,11 +9,10 @@
 #include <string>
 
 
-#define MAX_SPEED 5.0
+#define MAX_SPEED 5.0 //max speed value for turtles
 
 std::array<double, 3> generateRandomNumbers(); //generate two random numbers
 
-//include "turtlesim/Pose.h" //name with first capital letter
 
 /*
 
@@ -35,11 +34,12 @@ int main(int argc, char **argv){
 	ros::init(argc, argv, "UI_node1_control_node");
 	ros::NodeHandle n;
     
+    //publishers for turtles velocity
 	ros::Publisher turtle_pbl1 = n.advertise<geometry_msgs::Twist>("turtle1/cmd_vel", 10);
     ros::Publisher turtle_pbl2 = n.advertise<geometry_msgs::Twist>("turtle2/cmd_vel", 10);
 
+    //service to spawn the turtle in random position
 	ros::ServiceClient turtle_client = n.serviceClient<turtlesim::Spawn>("/spawn");
-	
 	turtlesim::Spawn my_spawn;
     std::array<double, 3> spawn_pos;
     spawn_pos = generateRandomNumbers();
@@ -48,19 +48,15 @@ int main(int argc, char **argv){
 	my_spawn.request.theta = spawn_pos[2];
 	my_spawn.request.name = "turtle2";
 
-
-
+    //Check if the turtle has been spawned
     if (turtle_client.call(my_spawn)) ROS_INFO("Turtle 2 spawned [%f %f]", my_spawn.request.x, my_spawn.request.y);
     else  ROS_ERROR("Failed to spawn turtle2");
        
-    
-    
-	
 	ros::Rate loop_rate(10);
 	geometry_msgs::Twist my_vel;
 	
     int turtle_choice;
-    bool err_flag = false;
+    bool err_flag = false; //flag is true when errors 
 	while(ros::ok()){
 
         //choose turtle, velocity parameters;
@@ -70,46 +66,28 @@ int main(int argc, char **argv){
         else err_flag = false;
         }while(err_flag);
         
+        //if input speed is higher than MAX_SPEED, the speed is set to MAX_SPEED
         std::cout<<"Set linear and angular velocity (max speed 5) in the following order [X Y Z_angular]"<<std::endl;
         std::cin>> my_vel.linear.x >> my_vel.linear.z >> my_vel.angular.z;
         if (abs(my_vel.linear.x)>5) {my_vel.linear.x = std::min(my_vel.linear.x, MAX_SPEED); my_vel.linear.x = std::max(my_vel.linear.x, -MAX_SPEED); }
         if (abs(my_vel.linear.y)>5) {my_vel.linear.y = std::min(my_vel.linear.y, MAX_SPEED); my_vel.linear.y = std::max(my_vel.linear.y, -MAX_SPEED); }
         if (abs(my_vel.angular.z)>5) {my_vel.angular.z = std::min(my_vel.angular.z, MAX_SPEED); my_vel.angular.z = std::max(my_vel.angular.z, -MAX_SPEED); }
 
-        do{
-            switch (turtle_choice)
-            {
-            case 1:
-                err_flag = false;
-                turtle_pbl1.publish(my_vel);
-                break;
-
-            case 2:
-                err_flag = false;
-                turtle_pbl2.publish(my_vel);
-                break;
-
-            default:
-                
-                std::cout<<"Select a turtle to control [1 | 2]"<<std::endl;
-                std::cin>>turtle_choice;
-                err_flag=true;
-                break;
-            }
-        }while(err_flag);
-
-
-
+        switch (turtle_choice) //publish speed of selected turtle
+        {
+        case 1:
+            turtle_pbl1.publish(my_vel); break;
+            
+        case 2:
+            turtle_pbl2.publish(my_vel); break;
+        }
+        
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
 	
-	
-	
-	
 	return 0;
 }
-
 
 //FUNCTIONS
 std::array<double, 3> generateRandomNumbers() {
@@ -118,4 +96,3 @@ std::array<double, 3> generateRandomNumbers() {
     std::array<double, 3> randomNumbers = {std::rand() % 9 + 1.5, std::rand() % 9 + 1.5, std::rand()%360};
     return randomNumbers;
 }
-
