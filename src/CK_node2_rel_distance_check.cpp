@@ -77,10 +77,9 @@ int main(int argc, char **argv){
 
 		if(turtles_too_close(dist.data)){
 			//if the turtles are too close, it detects the moving turtle in order to stop it
-			int moving_trt_id = moving_turtle();
+			//int moving_trt_id = moving_turtle();
 			
-			ROS_FATAL("TURTLE FATAL %d", moving_trt_id);
-			switch(moving_trt_id)
+			switch(moving_turtle())
 			{
 			case 1:
 				ROS_WARN("Stop turtle1[%f %f]: too close to turtle2 [%f %f] ", pos_t1.x, pos_t1.y, pos_t2.x, pos_t2.y);
