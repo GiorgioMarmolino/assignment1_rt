@@ -93,6 +93,6 @@ int main(int argc, char **argv){
 std::array<double, 3> generateRandomNumbers() {
     
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
-    std::array<double, 3> randomNumbers = {std::rand() % 9 + 1.5, std::rand() % 9 + 1.5, std::rand()%360};
+    std::array<double, 3> randomNumbers = {std::rand() % 8 + 1.5, std::rand() % 8 + 1.5, std::rand()%360};
     return randomNumbers;
 }

@@ -6,7 +6,7 @@
 #include <math.h>
 
 #define min_lim 1.0 //minimal value in space
-#define max_lim 9.0 //max value in space
+#define max_lim 9.5 //max value in space
 #define min_distance 1.0 //minimal distance between turtles
 
 turtlesim::Pose pos_t1; //position of turtle 1
@@ -67,7 +67,7 @@ int main(int argc, char **argv){
     ros::Publisher turtle_pbl2 = n.advertise<geometry_msgs::Twist>("turtle2/cmd_vel", 10);
 
 	std_msgs::Float32 dist;
-	ros::Rate loop_rate(1000);
+	ros::Rate loop_rate(100);
 	
 	while(ros::ok()){
 		
@@ -77,23 +77,30 @@ int main(int argc, char **argv){
 
 		if(turtles_too_close(dist.data)){
 			//if the turtles are too close, it detects the moving turtle in order to stop it
-			switch(moving_turtle())
+			int moving_trt_id = moving_turtle();
+			
+			ROS_FATAL("TURTLE FATAL %d", moving_trt_id);
+			switch(moving_trt_id)
 			{
 			case 1:
 				ROS_WARN("Stop turtle1[%f %f]: too close to turtle2 [%f %f] ", pos_t1.x, pos_t1.y, pos_t2.x, pos_t2.y);
 				stop(turtle_pbl1);
 				
+				
 				reverse_moving(turtle_pbl1, vel_t1);
+				
+				
 				ros::spinOnce();
-            	ros::Duration(0.1).sleep();
+            			ros::Duration(0.1).sleep();
+            			stop(turtle_pbl1);
 				break;
 			case 2:
 				ROS_WARN("Stop turtle2[%f %f]: too close to turtle1 [%f %f] ", pos_t2.x, pos_t2.y, pos_t1.x, pos_t1.y);
 				stop(turtle_pbl2);
-				
 				reverse_moving(turtle_pbl2, vel_t2);
 				ros::spinOnce();
-            	ros::Duration(0.1).sleep();
+            			ros::Duration(0.1).sleep();
+            			stop(turtle_pbl2);
 				break;
 			}}
 		if(world_limit(pos_t1)){ //Stop turtle 1 if it is too close to world boundaries
@@ -102,7 +109,8 @@ int main(int argc, char **argv){
 			
 			reverse_moving(turtle_pbl1, vel_t1);
 			ros::spinOnce();
-            ros::Duration(0.1).sleep();
+            		ros::Duration(0.1).sleep();
+            		stop(turtle_pbl1);
 		
 		}
 		if(world_limit(pos_t2)){//Stop turtle 2 if it is too close to world boundaries
@@ -111,6 +119,7 @@ int main(int argc, char **argv){
 			reverse_moving(turtle_pbl2, vel_t2);
 			ros::spinOnce();
         	ros::Duration(0.1).sleep();
+        	stop(turtle_pbl2);
 		}
 		ros::spinOnce();
 		loop_rate.sleep();
@@ -159,7 +168,14 @@ void trt2_vel(const geometry_msgs::Twist::ConstPtr& msg) {
     vel_t2.linear.y = msg->linear.y;
     vel_t2.angular.z = msg->angular.z;
 }
-int moving_turtle(){ int moving_turtle_id = t1_moving ? 1 : 2; return moving_turtle_id;}
+int moving_turtle(){ 
+	int moving_turtle_id; //= t1_moving ? 1 : 2;
+	if(vel_t1.linear.x != 0 || vel_t1.linear.y != 0 || vel_t1.angular.z != 0) moving_turtle_id = 1;
+	else moving_turtle_id = 2;
+	return moving_turtle_id;}
+	
+	
+	
 void reverse_moving(ros::Publisher& trt_pbl, geometry_msgs::Twist old_vel) {
 	geometry_msgs::Twist vel;
     vel.linear.x = -old_vel.linear.x;
